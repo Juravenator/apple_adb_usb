@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -o errexit -o nounset -o pipefail
+IFS=$'\n\t\v'
+cd `dirname "${BASH_SOURCE[0]:-$0}"`/..
 
 if ! [ -x "$(command -v teensy-loader-cli)" ] && ! [ -x "$(command -v teensy_loader_cli)" ]; then
   echo 'Error: you need teensie-loader cli.' >&2
@@ -14,12 +17,11 @@ else
   fi
 fi
 
-if [ ! -z "$1" ]; then
-  BINARY=$1;
-elif [ -f tmk_keyboard/converter/adb_usb/adb_usb_teensy.hex ]; then
-  BINARY="tmk_keyboard/converter/adb_usb/adb_usb_teensy.hex"
-else
-  BINARY="binaries/adb_usb_teensy.hex"
+BINARY=binaries/adb_usb_PIN${PORT}.hex
+
+if [ -z "$BINARY" ]; then
+  >&2 echo "No flashable binary found"
+  exit 1
 fi
 
 echo "using binary $BINARY"
